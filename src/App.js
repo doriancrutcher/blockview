@@ -9,7 +9,7 @@ import MetaData from './Components/MetaData'
 import TokenBalance from './Components/TokenBalance'
 import ActiveKeys from './Components/ActiveKeys'
 import SendTokensOut from './Components/SendTokensOut'
-
+//import ContractVerification from './Components/ContractVerification/ContractVerification'
 
 const { networkId } = getConfig(process.env.NODE_ENV || 'development')
 
@@ -32,17 +32,15 @@ export default function App() {
 </Navbar>
 {(window.accountId!=='')?
 <Container style={{marginTop:'5%'}}>
-<Row className="dflex justify-content-center"><MetaData/></Row>
+<Row className="d-flex justify-content-center"><MetaData/></Row>
   <Row>
     <Col>
-    <Row className="dflex justify-content-center"><SendTokensOut/></Row>
+    <Row className="d-flex justify-content-center"><SendTokensOut/></Row>
     </Col>
-    <Col>
-    <Row className="dflex justify-content-center"><TokenBalance/></Row>
 
-    </Col>
   </Row>
-  <Row className="dflex justify-content-center"><ActiveKeys/></Row>
+  <Row className="d-flex justify-content-center"><ActiveKeys/></Row>
+  {/* <Row className="d-flex justify-content-center"><ContractVerification/></Row> */}
   </Container>
   
 :<Card>
@@ -55,6 +53,7 @@ export default function App() {
   <Button onClick={login} variant="primary">Login NOW</Button>
 </Card.Body>
 </Card>
+
 
 }
 

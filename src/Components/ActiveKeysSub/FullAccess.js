@@ -36,7 +36,7 @@ const FullAccess = props => {
 
     return (
         <div>
-       <Table striped bordered hover variant="dark">
+<Table striped bordered hover variant="dark">
   <thead>
     <tr>
       <th colSpan="2">Full Access Key Pairs</th>

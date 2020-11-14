@@ -2,6 +2,10 @@ body{
   padding:0; 
   margin:0; 
 }
+
+.dragAndDrop{
+  background-color: red;
+}
 @charset "UTF-8";
 /*!
  * Bootstrap v4.5.2 (https://getbootstrap.com/)

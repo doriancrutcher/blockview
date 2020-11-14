@@ -50888,7 +50888,7 @@ exports.keyStores = __importStar(require("./key_stores/browser-index"));
 __exportStar(require("./common-index"), exports);
 
 },{"./key_stores/browser-index":"../node_modules/near-api-js/lib/key_stores/browser-index.js","./common-index":"../node_modules/near-api-js/lib/common-index.js"}],"config.js":[function(require,module,exports) {
-const CONTRACT_NAME = "dev-1601933302451-5651087" || 'blockview';
+const CONTRACT_NAME = "dev-1605311263576-1339517" || 'blockview';
 
 function getConfig(env) {
   switch (env) {
@@ -50993,7 +50993,7 @@ async function initContract() {
     // View methods are read only. They don't modify the state, but usually return some value.
     viewMethods: [],
     // Change methods can modify the state. But you don't receive the returned value when called.
-    changeMethods: []
+    changeMethods: ['addFunds', 'getTotals', 'getNames']
   });
 }
 
@@ -67193,18 +67193,74 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 const SendTokensOut = props => {
   const [title, setTitle] = (0, _react.useState)('');
+  const [recipients, setRecipients] = (0, _react.useState)([]);
+  const [valuesSent, setValues] = (0, _react.useState)([]);
+  const [Balance, changeBalance] = (0, _react.useState)(0);
 
   let ValueInput = _react.default.createRef();
 
   let Recipient = _react.default.createRef();
 
-  const sendGift = () => {
-    console.log('pressed!');
-    console.log();
-    window.account.sendMoney(Recipient.current.value, window.utils.format.parseNearAmount(ValueInput.current.value));
+  const sendGift = async () => {
+    let getState = await window.account.state();
+    let getAmount = await window.utils.format.formatNearAmount(getState.amount);
+    let enteredValue = ValueInput.current.value;
+    console.log(`your starting balance is ${getAmount} and the current value input is ${enteredValue}`);
+
+    if (Number(getAmount) > Number(enteredValue)) {
+      await window.account.sendMoney(Recipient.current.value, window.utils.format.parseNearAmount(enteredValue)).then(await window.contract.addFunds({
+        recipient: Recipient.current.value,
+        amount: Number(enteredValue)
+      })).then(setRecipients(await window.contract.getNames())).then(setValues(await window.contract.getTotals()));
+    } else {
+      alert('Not enough funds');
+    }
   };
 
-  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Header, null, "Send Money to a Friend"), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Body, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Container, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Col, null, /*#__PURE__*/_react.default.createElement("input", {
+  (0, _react.useEffect)(() => {
+    async function getTransactions() {
+      setRecipients(await window.contract.getNames());
+      setValues(await window.contract.getTotals());
+    }
+
+    getTransactions();
+  }, [Balance]);
+  (0, _react.useEffect)(() => {
+    async function getData() {
+      let Data = await window.account.state();
+      changeBalance(Data.amount);
+    }
+
+    getData();
+  }, [Balance]);
+
+  const formatOutput = text => {
+    text = String(text);
+
+    if (text.includes('.')) {
+      let arr = text.split('.');
+      arr[1] = arr[1].split('').splice(0, 2).join('');
+      console.log(arr);
+      return arr.join('.');
+    } else {
+      return text;
+    }
+  };
+
+  return /*#__PURE__*/_react.default.createElement(_reactBootstrap.Container, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
+    className: "d-flex justify-content-center"
+  }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card, {
+    style: {
+      width: '18rem'
+    }
+  }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Header, null, "NEAR Token Balance "), /*#__PURE__*/_react.default.createElement(_reactBootstrap.ListGroup, {
+    variant: "flush"
+  }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.ListGroup.Item, null, formatOutput(utils.format.formatNearAmount(String(Balance))), " NEAR Tokens")))), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
+    style: {
+      marginTop: '10px'
+    },
+    className: "justify-content-center d-flex"
+  }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Header, null, "Send Money to a Friend"), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Body, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Container, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Col, null, /*#__PURE__*/_react.default.createElement("input", {
     type: "text",
     placeholder: "Enter Recipient Here",
     ref: Recipient
@@ -67216,7 +67272,23 @@ const SendTokensOut = props => {
     className: "dflex align-items-center justify-content-center"
   }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Button, {
     onClick: sendGift
-  }, " Submit")))))));
+  }, " Submit"))), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
+    className: "justify-content-center d-flex"
+  }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Table, {
+    style: {
+      marginTop: '10px'
+    },
+    striped: true,
+    bordered: true,
+    hover: true,
+    variant: "dark"
+  }, /*#__PURE__*/_react.default.createElement("thead", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("th", {
+    colSpan: "2"
+  }, "Transaction History"))), /*#__PURE__*/_react.default.createElement("tbody", null, recipients.map((x, index) => {
+    return /*#__PURE__*/_react.default.createElement("tr", {
+      key: x
+    }, console.log('hello'), console.log(recipients), /*#__PURE__*/_react.default.createElement("td", null, x), /*#__PURE__*/_react.default.createElement("td", null, ` ${valuesSent[index]} Near`));
+  })))))))));
 };
 
 SendTokensOut.propTypes = {};
@@ -67254,6 +67326,7 @@ var _SendTokensOut = _interopRequireDefault(require("./Components/SendTokensOut"
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+//import ContractVerification from './Components/ContractVerification/ContractVerification'
 const {
   networkId
 } = (0, _config.default)("development" || 'development');
@@ -67277,13 +67350,11 @@ function App() {
       marginTop: '5%'
     }
   }, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
-    className: "dflex justify-content-center"
+    className: "d-flex justify-content-center"
   }, /*#__PURE__*/_react.default.createElement(_MetaData.default, null)), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Col, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
-    className: "dflex justify-content-center"
-  }, /*#__PURE__*/_react.default.createElement(_SendTokensOut.default, null))), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Col, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
-    className: "dflex justify-content-center"
-  }, /*#__PURE__*/_react.default.createElement(_TokenBalance.default, null)))), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
-    className: "dflex justify-content-center"
+    className: "d-flex justify-content-center"
+  }, /*#__PURE__*/_react.default.createElement(_SendTokensOut.default, null)))), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Row, {
+    className: "d-flex justify-content-center"
   }, /*#__PURE__*/_react.default.createElement(_ActiveKeys.default, null))) : /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Header, {
     as: "h5"
   }, "Hello User! "), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Body, null, /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Title, null, "Please Login "), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Card.Text, null, "This Application Will Not Work Otherwise, Sorry Not Sorry :)"), /*#__PURE__*/_react.default.createElement(_reactBootstrap.Button, {
@@ -67335,7 +67406,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53921" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53745" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
