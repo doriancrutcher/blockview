@@ -34,7 +34,7 @@ export function addFunds(recipient:'string',amount:i32):void{
 
 
 export function getNames(name:string):string[]{
-    logging.log(Context.sender)
+
     if(recipientList.contains(name))
     { return recipientList.getSome(name)}else{
         return []
